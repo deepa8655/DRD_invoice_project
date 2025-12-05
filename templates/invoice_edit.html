@@ -1,0 +1,79 @@
+<h2>Edit Invoice {{ inv.invoice_no }}</h2>
+
+<form method="POST">
+  <label>Invoice No:</label>
+  <input type="text" name="invoice_no" value="{{ inv.invoice_no }}" required>
+
+  <label>Invoice Date:</label>
+  <input type="date" name="invoice_date" value="{{ inv.invoice_date.strftime('%Y-%m-%d') if inv.invoice_date }}">
+ 
+
+  <label>Customer:</label>
+  <select name="customer_name" required>
+    {% for c in customers %}
+      <option value="{{ c.name }}" {% if c.id == inv.customer_id %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+
+  <label>From Date:</label>
+  <input type="date" name="from_date" value="{{ inv.from_date.strftime('%Y-%m-%d') if inv.from_date }}">
+
+  <label>To Date:</label>
+  <input type="date" name="to_date" value="{{ inv.to_date.strftime('%Y-%m-%d') if inv.to_date }}">
+
+  <label>Fuel Percentage:</label>
+  <input type="number" name="fuel_percentage" value="{{ inv.fuel_percentage }}" step="0.01">
+
+  <label>GST Type:</label>
+  <select name="gst_type">
+    <option value="CGST+SGST" {% if inv.gst_type == 'CGST+SGST' %}selected{% endif %}>CGST+SGST</option>
+    <option value="IGST" {% if inv.gst_type == 'IGST' %}selected{% endif %}>IGST</option>
+  </select>
+
+  <label>GST Rate:</label>
+  <input type="number" name="gst_rate" value="{{ inv.gst_rate }}" step="0.01">
+
+  <label>Additional Charges:</label>
+  <input type="number" name="additional_charges" value="{{ inv.additional_charges }}" step="0.01">
+
+
+  <label>Remarks:</label>
+  <textarea name="remarks">{{ inv.remarks }}</textarea>
+
+  <!-- Invoice Items -->
+  <h3>Invoice Items</h3>
+  <table border="1" cellpadding="5">
+    <tr>
+      <th>Date</th><th>AWB No</th><th>Destination</th><th>Weight</th><th>Amount</th>
+    </tr>
+    {% for item in items %}
+    <tr>
+      <td><input type="text" name="item_date[]" value="{{ item.date }}"></td>
+      <td><input type="text" name="awb_no[]" value="{{ item.awb_no }}"></td>
+      <td><input type="text" name="destination[]" value="{{ item.destination }}"></td> 
+      <td><input type="text" name="weight[]" value="{{ item.weight }}"></td>
+      <td><input type="number" step="0.01" name="item_amount[]" value="{{ item.amount }}"></td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <button type="button" onclick="addRow()">➕ Add Row</button>
+  <br><br>
+
+  <button type="submit">💾 Update Invoice</button>
+  <a href="{{ url_for('index') }}">⬅ Cancel</a>
+</form>
+
+<script>
+function addRow() {
+  const table = document.querySelector("table");
+  const newRow = table.insertRow(-1);
+  newRow.innerHTML = `
+    <td><input type="text" name="item_date[]" /></td>
+    <td><input type="text" name="awb_no[]" /></td>
+    <td><input type="text" name="destination[]" /></td>
+    <td><input type="text" name="weight[]" /></td>
+    <td><input type="number" step="0.01" name="item_amount[]" /></td>
+  `;
+}
+</script>

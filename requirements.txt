@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+pymysql
+gunicorn
+pdfkit
+num2words
+pandas
+openpyxl
+XlsxWriter

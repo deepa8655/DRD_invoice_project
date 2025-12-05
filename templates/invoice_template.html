@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<!-- Invoice Header -->
+<table style="width:100%; border:none;">
+    <tr>
+        <!-- Logo -->
+        <td style="width: 20%;border:none;">
+<img src="{{ url_for('static', filename='logo.png', _external=True) }}" class="company-logo" style="width:200px; height:auto;">
+               </td>
+        
+        <!-- Company Info -->
+        <td style="width: 60%; text-align:center; border:none;">
+            <h2 style="margin:0; font-size:18px;">DRD COURIERS AND LOGISTICS</h2>
+            <p style="margin:2px; font-size:12px;">Gala no 8, c4 prerna complex<br>
+               &nbsp; &nbsp; Val, Bhiwandi 421302<br>
+                PHONE: 9561360051 &nbsp;|&nbsp; MAIL: drdcouriers01@gmail.com
+            </p>
+        </td>
+        <td style="width: 20%;border:none;">
+               </td></tr>
+<tr>
+    <td colspan="3" style="text-align:center; border:none; font-size:18px; font-weight:bold;">
+        Tax Invoice
+    </td>
+</tr>
+
+</table>
+<title>Invoice {{ inv.invoice_no }}</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+        margin: 0;
+        padding: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 2px solid black; /* outer border */
+    }
+
+    th, td {
+        border: 2px solid black; /* inner borders */
+        padding: 6px 8px;
+        text-align: left;
+    }
+
+    .no-border {
+        border: none !important;
+    }
+</style>
+
+</head>
+<body>
+<table style="width:100%; border-left: 2px solid black; border-right: 2px solid black;border-top:2px solid black; border-bottom:none;">
+ <tr>
+<td style="border:none; width:70%;" colspan=2><Strong>To, {{ customer.name }}<br><br>
+ADD: {{ customer.address}}</td>
+
+
+<td style="width:12%;"><strong>Invoice No.</td>
+<td style="width:18%;"> <strong>{{ inv.invoice_no }}</strong></td></tr>
+    <tr><td style="border:none;"><strong>Mob.: {{ customer.mobile }}</td>
+
+<td style="border:none;"></td>
+<td><strong>From Date</td>
+<td> <strong>{{ inv.from_date.strftime('%d-%m-%Y')  }}</strong></td></tr>
+<tr><td style="border:none;"><strong>Customer GST No.: {{ customer.gst_no }}</td>
+
+<td style="border:none;"><strong>State: {{ customer.state }}</td>
+<td><strong>To Date</td>
+<td> <strong>{{ inv.to_date.strftime('%d-%m-%Y')  }}</strong></td></tr>
+    <tr><td style="border:none;"><strong>Customer Pan No.: {{ customer.pan_no }}</td>
+<td style="border:none;"><strong>State Code: {{ customer.state_code }}</td>
+<td style=border-left: 2px solid black; border-right: 2px solid black;border-top:none; border-bottom:none;"><strong>Invoice Date</td>
+<td style=border-left: 2px solid black; border-right: 2px solid black;border-top:none; border-bottom:none;"><strong> {{ inv.invoice_date.strftime('%d-%m-%Y') }} </strong></td></tr>
+ <table class="items" style=" border:none;" >
+<thead>
+        <tr>
+            <th>SrNo.</th>
+            <th>Date</th>
+            <th>Awb No.</th>
+            <th>Destination</th>
+            <th>Weight</th>
+            <th>Amount</th>
+        </tr>
+</thead>
+        <tbody>
+        {% for item in items %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ item.date}}</td>
+                <td>{{ item.awb_no}}</td>
+                <td>{{ item.destination}}</td>
+                <td>{{ item.weight }}</td>
+                <td>{{ "{:.2f}".format(item.amount) }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+</table>
+<table>
+
+    <!-- Totals -->
+        <tr><td colspan=4 style="width: 60%; border-left:2px solid black; border-right:none; border-top:2px solid black; border-bottom:none;">
+
+            <td style="border-top:2px solid black; width: 17%;"><strong>Subtotal:</strong></td>
+            <td style="border-top:2px solid black; width: 13%;"><strong>{{ "%.2f"|format(totals.subtotal) }}</strong></td>
+        </tr>
+        <tr><td colspan=4 style="width: 60%; border-left:2px solid black; border-right:none; border-top:none; border-bottom:none;">
+
+            <td><strong>Fuel@ of {{ inv.fuel_percentage }} %</strong></td>
+            <td><strong>{{ "%.2f"|format(totals.fuel_charge) }}</strong></td>
+        </tr>
+       <tr><td colspan=4 style="width: 60%; border-left:2px solid black; border-right:none; border-top:none; border-bottom:none;">
+
+            <td><strong>Additional Charges</strong></td>
+            <td><strong>{{ "%.2f"|format(inv.additional_charges) }}</strong></td>
+        </tr>
+        <tr><td colspan=4 style="width: 60%; border-left:2px solid black; border-right:none; border-top:none; border-bottom:none;">
+
+            <td><strong>IGST@ of {{ totals.igst_rate }}%</strong></td>
+            <td><strong>{{ "%.2f"|format(totals.igst) }}</strong></td>
+        </tr>
+
+   <tr>    <td colspan=4 style="width: 60%; border-left:2px solid black; border-right:none; border-top:none; border-bottom:none;">
+
+            <td><strong>CGST@ of {{ totals.cgst_rate }}%</strong></td>
+            <td><strong>{{ "%.2f"|format(totals.cgst) }}</strong></td>
+        </tr>
+
+   <tr><td colspan=4 style="width: 60%; border-left:2px solid black; border-right:none; border-top:none; border-bottom:none;">
+
+            <td><strong>SGST@ of {{ totals.sgst_rate }}%</strong></td>
+            <td><strong>{{ "%.2f"|format(totals.sgst) }}</strong></td>
+        </tr>
+
+   <tr><td colspan=4 style="width: 60%; border-left:2px solid black; border-right:none; border-top:none; border-bottom:none;">
+    
+         <td><strong>BILL AMOUNT</strong></td>
+         <td><strong>{{ "%.2f"|format(totals.bill_amount) }}</strong></td>
+
+
+        </tr>
+
+
+        <tr>
+            <td colspan="6"><strong>RUPEES IN WORDS : {{ amount_in_words }}</strong></td>
+        </tr>
+     <tr>
+            <td colspan=4 style="width: 60%;border-right:none;">
+    <strong>1.All dispute are subject to Mumbai Jurisdiction.<br>
+2.Payment due on receipt of this bill.<br>
+3.This is computer generated bill, hence no signature is<br>
+required.<br>                                     
+4.NEFT/IMPS in favour of : DRD COURIERS AND LOGISTICS<br>
+PAN :CBDPC2813D.<br>
+GST :27CBDPC2813D1ZB.<br>
+Bank Details:<br>
+Bank Name: Union Bank<br>                
+Branch : Val branch<br>
+Ac : 300421010000162<br>
+IFSC : UBIN0930041
+
+</strong<</td>
+<td colspan=2 style="width: 60%;border-left:none;">
+<strong>For DRD COURIERS AND LOGISTICS<br><br><br><br>Authorised Signatory</strong>
+
+        </tr>    
+
+    </table>
+</div>
+</body>
+</html>
