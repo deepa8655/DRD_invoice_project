@@ -1,9 +1,8 @@
-Flask
-Flask-SQLAlchemy
+flask
+flask-sqlalchemy
 pymysql
 gunicorn
 pdfkit
 num2words
 pandas
 openpyxl
-XlsxWriter
