@@ -199,10 +199,11 @@ def get_customer(customer_id):
         "pan_no": cust.pan_no,
         "state": cust.state
     })
-@app.route('/customers')
+@app.route('/customers', endpoint='manage_customers')
 def manage_customers():
     customers = Customer.query.all()
     return render_template('customers.html', customers=customers, customer=None)
+
 
 
 @app.route('/add_customer', methods=['POST'])
