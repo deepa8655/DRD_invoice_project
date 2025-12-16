@@ -31,7 +31,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize SQLAlchemy with THIS app
-	db.init_app(app)
+db.init_app(app)
 
 # Create tables at startup (required for gunicorn)
 with app.app_context():
