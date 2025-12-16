@@ -1,40 +1,52 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response, send_file
 from num2words import num2words
 from io import BytesIO
-import pandas as pd
 from datetime import datetime
-from models import db, Invoice, Customer, InvoiceItem
+import pandas as pd
 import pdfkit
 import os
 import math
 
+from models import db, Invoice, Customer, InvoiceItem
+
+# -------------------------------------------------
+# Flask app
+# -------------------------------------------------
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
 
-# ----------------------------
-# Database (Render compatible)
-# ----------------------------
+# -------------------------------------------------
+# Database configuration (PostgreSQL on Render)
+# -------------------------------------------------
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL is not set")
+    raise RuntimeError("DATABASE_URL environment variable is not set")
 
-# Render provides postgres:// but SQLAlchemy expects postgresql://
+# Render may provide postgres:// but SQLAlchemy expects postgresql://
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# ----------------------------
+# Initialize SQLAlchemy with THIS app
+	db.init_app(app)
+
+# Create tables at startup (required for gunicorn)
+with app.app_context():
+    db.create_all()
+
+# -------------------------------------------------
 # PDFKit (Linux / Render)
-# ----------------------------
+# -------------------------------------------------
 pdf_config = pdfkit.configuration()
 
-# ----------------------------
+# -------------------------------------------------
 # Helper: Invoice calculation
-# ----------------------------
+# -------------------------------------------------
 def calculate_invoice(items, inv):
-    subtotal = sum(float(item.amount) for item in items)
+    subtotal = sum(float(item.amount or 0) for item in items)
     fuel_charge = subtotal * (float(inv.fuel_percentage or 0) / 100)
     additional_charges = float(inv.additional_charges or 0)
     tax_base = subtotal + fuel_charge + additional_charges
@@ -65,9 +77,9 @@ def calculate_invoice(items, inv):
         "bill_amount": math.ceil(bill_amount)
     }
 
-# ----------------------------
+# -------------------------------------------------
 # Routes
-# ----------------------------
+# -------------------------------------------------
 @app.route('/')
 def index():
     invoices = Invoice.query.order_by(Invoice.id.desc()).all()
@@ -104,11 +116,8 @@ def generate_invoice_pdf(id):
     response.headers['Content-Disposition'] = 'inline; filename=invoice.pdf'
     return response
 
-# ----------------------------
-# App start (Render)
-# ----------------------------
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+# -------------------------------------------------
+# NOTE:
+# Do NOT use app.run() on Render.
+# Gunicorn starts the app using: gunicorn app:app
+# -------------------------------------------------
