@@ -1,8 +1,8 @@
 flask
 flask-sqlalchemy
-pymysql
 gunicorn
 pdfkit
 num2words
 pandas
 openpyxl
+psycopg2-binary
